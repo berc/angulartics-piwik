@@ -23,6 +23,18 @@
 
                 $analyticsProvider.settings.pageTracking.trackRelativePath = true;
 
+                $analyticsProvider.settings.exceptions = {
+                    getCategory: function () {
+                        return 'System Exceptions';
+                    },
+                    getAction: function () {
+                        return 'Unknown Exception';
+                    },
+                    getLabel: function (error, cause) {
+                        return 'error: ' + error.toString() + '\n\nstack:' + error.stack + '\n\ncause:' + cause.toString();
+                    }
+                }
+
                 // Add piwik specific trackers to angulartics API
 
                 // Requires the CustomDimensions plugin for Piwik.
@@ -138,18 +150,19 @@
                     }
                 });
                 
-              /**
-               * @name exceptionTrack
-               * Sugar on top of the eventTrack method for easily handling errors
-               *
-               * @param {object} error An Error object to track: error.toString() used for event 'action', error.stack used for event 'label'.
-               * @param {object} cause The cause of the error given from $exceptionHandler, not used.
-               */
-              $analyticsProvider.registerExceptionTrack(function (error, cause) {
-                  if ($window._paq) {
-                      $window._paq.push(['trackEvent', 'Exceptions', error.toString(), error.stack, 0]);
-                  }
-              });
+                /**
+                 * @name exceptionTrack
+                 * Sugar on top of the eventTrack method for easily handling errors
+                 *
+                 * @param {object} error An Error object to track: error.toString() used for event 'action', error.stack used for event 'label'.
+                 * @param {object} cause The cause of the error given from $exceptionHandler, not used.
+                 */
+                $analyticsProvider.registerExceptionTrack(function (error, cause) {
+                    if ($window._paq) {
+                        var settings = $analyticsProvider.settings.exceptions;
+                        $window._paq.push(['trackEvent', settings.getCategory(), settings.getAction(), settings.getLabel(error, cause), 0]);
+                    }
+                });
             }
         ]);
 })(angular);
