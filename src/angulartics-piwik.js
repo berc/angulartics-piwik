@@ -30,10 +30,10 @@
                     getAction: function () {
                         return 'Unknown Exception';
                     },
-                    getLabel: function (error, cause) {
-                        return 'error: ' + error.toString() + '\n\nstack:' + error.stack + '\n\ncause:' + cause.toString();
+                    getLabel: function (error) {
+                        return 'error: ' + error.toString() + '\n\nstack:' + error.stack;
                     }
-                }
+                };
 
                 // Add piwik specific trackers to angulartics API
 
@@ -154,13 +154,14 @@
                  * @name exceptionTrack
                  * Sugar on top of the eventTrack method for easily handling errors
                  *
-                 * @param {object} error An Error object to track: error.toString() used for event 'action', error.stack used for event 'label'.
+                 * @param {object} error An Error object to track. Functions getCategory, getAction and getLabel
+                 * from setting.exceptions are used for customising of exception tracking
                  * @param {object} cause The cause of the error given from $exceptionHandler, not used.
                  */
                 $analyticsProvider.registerExceptionTrack(function (error, cause) {
                     if ($window._paq) {
                         var settings = $analyticsProvider.settings.exceptions;
-                        $window._paq.push(['trackEvent', settings.getCategory(), settings.getAction(), settings.getLabel(error, cause), 0]);
+                        $window._paq.push(['trackEvent', settings.getCategory(), settings.getAction(), settings.getLabel(error), 0]);
                     }
                 });
             }
